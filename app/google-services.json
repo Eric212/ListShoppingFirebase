@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1052428807578",
+    "project_id": "listshoppingfirebase",
+    "storage_bucket": "listshoppingfirebase.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1052428807578:android:3ec8f9c75bcfd3cfa69e23",
+        "android_client_info": {
+          "package_name": "com.ericsospedra.listshoppingfirebase"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBt7IHPDJUFmuS8TYw57Ulw93l161fWxFk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">ListShoppingFirebase</string>
+    <string name="create_shoppinglist">create_shoppinglist</string>
+</resources>
