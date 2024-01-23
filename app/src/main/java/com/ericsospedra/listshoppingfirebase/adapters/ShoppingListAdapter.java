@@ -1,5 +1,6 @@
 package com.ericsospedra.listshoppingfirebase.adapters;
 
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -33,7 +34,7 @@ public class ShoppingListAdapter extends FirestoreRecyclerAdapter<ShoppingList, 
     @NonNull
     @Override
     public ShoppingListAdapter.ShoppingListViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return null;
+        return new ShoppingListViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.item_shopping_list,parent,false));
     }
 
     public class ShoppingListViewHolder extends RecyclerView.ViewHolder {

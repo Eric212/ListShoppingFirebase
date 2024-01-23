@@ -6,6 +6,17 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/fcvMain"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:name="com.ericsospedra.listshoppingfirebase.fragments.ShoppingListFragment"
+        tools:layout="@layout/shoping_list_fragment" />
+
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/btAdd"
         android:layout_width="wrap_content"

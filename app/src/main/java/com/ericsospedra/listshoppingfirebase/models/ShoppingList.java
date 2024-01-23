@@ -3,7 +3,10 @@ package com.ericsospedra.listshoppingfirebase.models;
 
 import com.ericsospedra.listshoppingfirebase.utils.DateUtil;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 public class ShoppingList {
     private String name;
@@ -23,10 +26,10 @@ public class ShoppingList {
         this.cantidadProductos = cantidadProductos;
     }
 
-    public ShoppingList(String name, String image, String date, int user, int cantidadProductos) {
+    public ShoppingList(String name, String image, Date date, int user, int cantidadProductos) {
         this.name = name;
         this.image = image;
-        this.date = DateUtil.createDateFromString(date);
+        this.date = date;
         this.user = user;
         this.cantidadProductos = cantidadProductos;
     }
@@ -64,7 +67,16 @@ public class ShoppingList {
     }
 
     public String getDate() {
-        return date.toString();
+        try {
+            SimpleDateFormat inputFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy", Locale.US);
+            Date date = inputFormat.parse(this.date.toString());
+
+            // Now, create a new SimpleDateFormat to format the date in the desired output format
+            SimpleDateFormat outputFormat = new SimpleDateFormat("dd-MM-yyyy", Locale.US);
+            return outputFormat.format(date);
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void setDate(Date date) {

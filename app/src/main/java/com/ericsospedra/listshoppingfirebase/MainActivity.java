@@ -17,17 +17,25 @@ import android.widget.Toast;
 
 
 import com.ericsospedra.listshoppingfirebase.fragments.AddListBoxDialogFragment;
+import com.ericsospedra.listshoppingfirebase.interfaces.IOnClickListener;
+import com.ericsospedra.listshoppingfirebase.models.ShoppingList;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract;
 import com.firebase.ui.auth.IdpResponse;
 import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 
 public class MainActivity extends AppCompatActivity implements AddListBoxDialogFragment.OnListAddedListener {
@@ -43,6 +51,13 @@ public class MainActivity extends AppCompatActivity implements AddListBoxDialogF
         if (firebaseUser != null) {
             Toast.makeText(this, "Bienvenido " + firebaseUser.getDisplayName(), Toast.LENGTH_SHORT).show();
             db = FirebaseFirestore.getInstance();
+            FloatingActionButton btAdd = findViewById(R.id.btAdd);
+            btAdd.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    showAddListDialog();
+                }
+            });
         }else {
             Toast.makeText(this, "Usuario desconocido", Toast.LENGTH_SHORT).show();
             ActivityResultLauncher<Intent> resultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
@@ -51,13 +66,6 @@ public class MainActivity extends AppCompatActivity implements AddListBoxDialogF
                     if(o.getResultCode() == RESULT_OK){
                         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
                         Toast.makeText(MainActivity.this, "Bienvenido "+firebaseUser.getDisplayName(), Toast.LENGTH_SHORT).show();
-                        FloatingActionButton btAdd = findViewById(R.id.btAdd);
-                        btAdd.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                showAddListDialog();
-                            }
-                        });
                     }else {
                         Toast.makeText(MainActivity.this, "Acceso Denegado", Toast.LENGTH_SHORT).show();
                     }
@@ -74,6 +82,18 @@ public class MainActivity extends AppCompatActivity implements AddListBoxDialogF
 
     @Override
     public void onListAdded(String listName) {
-        db.collection()
+        ShoppingList list = new ShoppingList(listName,"shopping_list", new Date(),0);
+        db.collection("ShoppingLists").add(list).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+            @Override
+            public void onSuccess(DocumentReference documentReference) {
+                Log.d(MainActivity.class.getSimpleName(), "Producto añadido correctamente con id:" + list.getName());
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.d(MainActivity.class.getSimpleName(), "Error al añadir la lista");
+                Log.e(MainActivity.class.getSimpleName(), e.getMessage());
+            }
+        });
     }
 }
