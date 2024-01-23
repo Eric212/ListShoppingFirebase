@@ -11,7 +11,7 @@ import java.util.Locale;
 public class ShoppingList {
     private String name;
     private String image;
-    private Date date;
+    private long date;
     private int user;
 
     private int cantidadProductos;
@@ -19,14 +19,14 @@ public class ShoppingList {
     public ShoppingList() {
     }
 
-    public ShoppingList(String name, String image, Date date, int cantidadProductos) {
+    public ShoppingList(String name, String image, long date, int cantidadProductos) {
         this.name = name;
         this.image = image;
         this.date = date;
         this.cantidadProductos = cantidadProductos;
     }
 
-    public ShoppingList(String name, String image, Date date, int user, int cantidadProductos) {
+    public ShoppingList(String name, String image, long date, int user, int cantidadProductos) {
         this.name = name;
         this.image = image;
         this.date = date;
@@ -66,20 +66,11 @@ public class ShoppingList {
         this.user = user;
     }
 
-    public String getDate() {
-        try {
-            SimpleDateFormat inputFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy", Locale.US);
-            Date date = inputFormat.parse(this.date.toString());
-
-            // Now, create a new SimpleDateFormat to format the date in the desired output format
-            SimpleDateFormat outputFormat = new SimpleDateFormat("dd-MM-yyyy", Locale.US);
-            return outputFormat.format(date);
-        } catch (ParseException e) {
-            throw new RuntimeException(e);
-        }
+    public long getDate() {
+        return this.date;
     }
 
-    public void setDate(Date date) {
+    public void setDate(long date) {
         this.date = date;
     }
 }

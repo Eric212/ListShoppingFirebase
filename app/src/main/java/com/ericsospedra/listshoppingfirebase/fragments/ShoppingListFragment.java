@@ -28,6 +28,18 @@ public class ShoppingListFragment extends Fragment {
     }
 
     @Override
+    public void onStart() {
+        super.onStart();
+        adapter.startListening();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        adapter.stopListening();
+    }
+
+    @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         firebase = FirebaseFirestore.getInstance();
@@ -38,6 +50,6 @@ public class ShoppingListFragment extends Fragment {
         adapter = new ShoppingListAdapter(options);
         rvShoppingList.setAdapter(adapter);
         rvShoppingList.setLayoutManager(new LinearLayoutManager(view.getContext(),LinearLayoutManager.VERTICAL,false));
-        adapter.startListening();
+
     }
 }

@@ -15,7 +15,9 @@ import android.view.View;
 import android.widget.Toast;
 
 
+import com.ericsospedra.listshoppingfirebase.fragments.AddCategoryBoxDialogFragment;
 import com.ericsospedra.listshoppingfirebase.fragments.AddListBoxDialogFragment;
+import com.ericsospedra.listshoppingfirebase.fragments.AddProductBoxDialogFragment;
 import com.ericsospedra.listshoppingfirebase.models.ShoppingList;
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -29,7 +31,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.Date;
 
 
-public class MainActivity extends AppCompatActivity implements AddListBoxDialogFragment.OnListAddedListener {
+public class MainActivity extends AppCompatActivity implements AddListBoxDialogFragment.OnListAddedListener, AddCategoryBoxDialogFragment.OnCategoryAddedListener, AddProductBoxDialogFragment.OnProductAddedListener {
     private FirebaseUser firebaseUser;
     private FirebaseFirestore db;
 
@@ -73,11 +75,11 @@ public class MainActivity extends AppCompatActivity implements AddListBoxDialogF
 
     @Override
     public void onListAdded(String listName) {
-        ShoppingList list = new ShoppingList(listName,"shopping_list", new Date(),0);
+        ShoppingList list = new ShoppingList(listName,"shopping_list", new Date().getTime(),0);
         db.collection("ShoppingLists").add(list).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
             @Override
             public void onSuccess(DocumentReference documentReference) {
-                Log.d(MainActivity.class.getSimpleName(), "Producto añadido correctamente con id:" + list.getName());
+                Log.d(MainActivity.class.getSimpleName(), "Lista añadida correctamente:" + list.getName());
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
@@ -86,5 +88,15 @@ public class MainActivity extends AppCompatActivity implements AddListBoxDialogF
                 Log.e(MainActivity.class.getSimpleName(), e.getMessage());
             }
         });
+    }
+
+    @Override
+    public void onCategoryAdd(String item) {
+
+    }
+
+    @Override
+    public void onProductAdd(String item) {
+
     }
 }

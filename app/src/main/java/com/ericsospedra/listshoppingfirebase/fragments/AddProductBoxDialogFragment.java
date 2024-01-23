@@ -17,13 +17,14 @@ import androidx.fragment.app.DialogFragment;
 import com.ericsospedra.listshoppingfirebase.R;
 
 
-public class AddListBoxDialogFragment extends DialogFragment {
+public class AddProductBoxDialogFragment extends DialogFragment {
 
-    public interface OnListAddedListener {
-        void onListAdded(String listName);
+    public interface OnProductAddedListener {
+
+        void onProductAdd(String item);
     }
 
-    private OnListAddedListener listener;
+    private OnProductAddedListener listener;
 
     @NonNull
     @Override
@@ -35,13 +36,13 @@ public class AddListBoxDialogFragment extends DialogFragment {
         final EditText etListName = view.findViewById(R.id.etAddItem);
 
         builder.setView(view)
-                .setTitle("Nueva Lista")
+                .setTitle("Nueva Producto")
                 .setPositiveButton("Aceptar", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
                         String item = etListName.getText().toString().trim();
                         if (!item.isEmpty() && listener != null) {
-                            listener.onListAdded(item);
+                            listener.onProductAdd(item);
                         }
                     }
                 })
@@ -54,7 +55,7 @@ public class AddListBoxDialogFragment extends DialogFragment {
         return builder.create();
     }
 
-    public void setOnListAddedListener(OnListAddedListener listener) {
+    public void setOnListAddedListener(OnProductAddedListener listener) {
         this.listener = listener;
     }
 }

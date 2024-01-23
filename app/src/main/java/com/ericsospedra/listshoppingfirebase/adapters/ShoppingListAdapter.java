@@ -1,5 +1,6 @@
 package com.ericsospedra.listshoppingfirebase.adapters;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +14,11 @@ import com.ericsospedra.listshoppingfirebase.R;
 import com.ericsospedra.listshoppingfirebase.models.ShoppingList;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 public class ShoppingListAdapter extends FirestoreRecyclerAdapter<ShoppingList, ShoppingListAdapter.ShoppingListViewHolder> {
     /**
@@ -53,7 +59,7 @@ public class ShoppingListAdapter extends FirestoreRecyclerAdapter<ShoppingList, 
         public void onBindShoppingList(ShoppingList model) {
             ivShoppingList.setImageResource(itemView.getContext().getResources().getIdentifier(model.getImage(), "drawable",itemView.getContext().getPackageName()));
             tvShoppingList.setText(model.getName());
-            tvDate.setText(model.getDate());
+            tvDate.setText(new SimpleDateFormat("dd-MM-yyyy",Locale.US).format(new Date(model.getDate())));
             tvCantidad.setText(String.valueOf(model.getCantidadProductos()));
         }
     }
