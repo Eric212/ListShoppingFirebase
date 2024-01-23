@@ -32,7 +32,7 @@ public class ShoppingListFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         firebase = FirebaseFirestore.getInstance();
         RecyclerView rvShoppingList = view.findViewById(R.id.rvShoppingList);
-        CollectionReference ref = firebase.collection("ShoppingList");
+        CollectionReference ref = firebase.collection("ShoppingLists");
         Query query = ref.orderBy("name");
         FirestoreRecyclerOptions<ShoppingList> options = new FirestoreRecyclerOptions.Builder<ShoppingList>().setQuery(query, ShoppingList.class).build();
         adapter = new ShoppingListAdapter(options);
