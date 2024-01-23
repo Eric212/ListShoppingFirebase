@@ -15,6 +15,7 @@ import com.ericsospedra.listshoppingfirebase.models.ShoppingList;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 
 
 public class ShoppingListFragment extends Fragment {
@@ -32,7 +33,8 @@ public class ShoppingListFragment extends Fragment {
         firebase = FirebaseFirestore.getInstance();
         RecyclerView rvShoppingList = view.findViewById(R.id.rvShoppingList);
         CollectionReference ref = firebase.collection("ShoppingList");
-        FirestoreRecyclerOptions<ShoppingList> options = new FirestoreRecyclerOptions.Builder<ShoppingList>().setQuery(ref, ShoppingList.class).build();
+        Query query = ref.orderBy("name");
+        FirestoreRecyclerOptions<ShoppingList> options = new FirestoreRecyclerOptions.Builder<ShoppingList>().setQuery(query, ShoppingList.class).build();
         adapter = new ShoppingListAdapter(options);
         rvShoppingList.setAdapter(adapter);
         rvShoppingList.setLayoutManager(new LinearLayoutManager(view.getContext(),LinearLayoutManager.VERTICAL,false));
