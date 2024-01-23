@@ -1,4 +1,6 @@
 <resources>
     <string name="app_name">ListShoppingFirebase</string>
     <string name="create_shoppinglist">create_shoppinglist</string>
+    <string name="cantidad_productos">Cantidad Productos: </string>
+    <string name="add_shoppinglist">Add ShoppingList</string>
 </resources>

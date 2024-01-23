@@ -6,33 +6,37 @@ import com.ericsospedra.listshoppingfirebase.utils.DateUtil;
 import java.util.Date;
 
 public class ShoppingList {
-    private int id;
     private String name;
     private String image;
     private Date date;
     private int user;
 
-    public ShoppingList(int id, String name, String image, String date, int user) {
-        this.id = id;
+    private int cantidadProductos;
+
+    public ShoppingList() {
+    }
+
+    public ShoppingList(String name, String image, Date date, int cantidadProductos) {
+        this.name = name;
+        this.image = image;
+        this.date = date;
+        this.cantidadProductos = cantidadProductos;
+    }
+
+    public ShoppingList(String name, String image, String date, int user, int cantidadProductos) {
         this.name = name;
         this.image = image;
         this.date = DateUtil.createDateFromString(date);
         this.user = user;
+        this.cantidadProductos = cantidadProductos;
     }
 
-    public ShoppingList(String name, String image, String date, int user) {
-        this.name = name;
-        this.image = image;
-        this.date = DateUtil.createDateFromString(date);;
-        this.user = user;
+    public int getCantidadProductos() {
+        return cantidadProductos;
     }
 
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
+    public void setCantidadProductos(int cantidadProductos) {
+        this.cantidadProductos = cantidadProductos;
     }
 
     public String getName() {
@@ -59,8 +63,8 @@ public class ShoppingList {
         this.user = user;
     }
 
-    public Date getDate() {
-        return date;
+    public String getDate() {
+        return date.toString();
     }
 
     public void setDate(Date date) {
