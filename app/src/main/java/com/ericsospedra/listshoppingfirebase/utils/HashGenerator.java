@@ -10,6 +10,7 @@ import java.security.NoSuchAlgorithmException;
  * HashGenerator
  * License: 🅮 Public Domain
  * <p>PruebaSQLite</p>
+ *
  * @author Germán Gascón
  * @version 0.3, 2023-01-11
  * @since 0.1, 2019-01-28

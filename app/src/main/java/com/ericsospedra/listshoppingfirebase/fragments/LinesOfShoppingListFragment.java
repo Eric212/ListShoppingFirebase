@@ -7,11 +7,13 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-
 import com.ericsospedra.listshoppingfirebase.R;
 
 
 public class LinesOfShoppingListFragment extends Fragment {
+    public interface IOnAttach {
+        String getListId();
+    }
 
     public LinesOfShoppingListFragment() {
         super(R.layout.line_of_shopping_list_fragment);

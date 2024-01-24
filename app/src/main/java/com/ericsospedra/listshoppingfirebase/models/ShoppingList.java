@@ -1,37 +1,41 @@
 package com.ericsospedra.listshoppingfirebase.models;
 
 
-import com.ericsospedra.listshoppingfirebase.utils.DateUtil;
-
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
+import java.util.List;
 
 public class ShoppingList {
     private String name;
     private String image;
     private long date;
     private int user;
-
     private int cantidadProductos;
-
+    private List<LinesOfShoppingList> linesOfShoppingLists;
     public ShoppingList() {
     }
 
-    public ShoppingList(String name, String image, long date, int cantidadProductos) {
+    public ShoppingList(String name, String image, long date, int cantidadProductos, List<LinesOfShoppingList> linesOfShoppingLists) {
         this.name = name;
         this.image = image;
         this.date = date;
         this.cantidadProductos = cantidadProductos;
+        this.linesOfShoppingLists = linesOfShoppingLists;
     }
 
-    public ShoppingList(String name, String image, long date, int user, int cantidadProductos) {
+    public ShoppingList(String name, String image, long date, int user, int cantidadProductos, List<LinesOfShoppingList> linesOfShoppingLists) {
         this.name = name;
         this.image = image;
         this.date = date;
         this.user = user;
         this.cantidadProductos = cantidadProductos;
+        this.linesOfShoppingLists = linesOfShoppingLists;
+    }
+
+    public List<LinesOfShoppingList> getLinesOfShoppingLists() {
+        return linesOfShoppingLists;
+    }
+
+    public void setLinesOfShoppingLists(List<LinesOfShoppingList> linesOfShoppingLists) {
+        this.linesOfShoppingLists = linesOfShoppingLists;
     }
 
     public int getCantidadProductos() {

@@ -3,4 +3,6 @@
     <string name="create_shoppinglist">create_shoppinglist</string>
     <string name="cantidad_productos">Cantidad Productos: </string>
     <string name="add_shoppinglist">Add ShoppingList</string>
+    <string name="name">Name</string>
+    <string name="categoria">Categoria</string>
 </resources>

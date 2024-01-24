@@ -19,7 +19,7 @@ import com.google.firebase.firestore.Query;
 
 
 public class ShoppingListFragment extends Fragment {
-    
+
     FirebaseFirestore firebase;
     ShoppingListAdapter adapter;
 
@@ -49,7 +49,7 @@ public class ShoppingListFragment extends Fragment {
         FirestoreRecyclerOptions<ShoppingList> options = new FirestoreRecyclerOptions.Builder<ShoppingList>().setQuery(query, ShoppingList.class).build();
         adapter = new ShoppingListAdapter(options);
         rvShoppingList.setAdapter(adapter);
-        rvShoppingList.setLayoutManager(new LinearLayoutManager(view.getContext(),LinearLayoutManager.VERTICAL,false));
+        rvShoppingList.setLayoutManager(new LinearLayoutManager(view.getContext(), LinearLayoutManager.VERTICAL, false));
 
     }
 }

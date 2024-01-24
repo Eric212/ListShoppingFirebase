@@ -13,7 +13,8 @@ public class CategoryFragment extends Fragment {
 
     public CategoryFragment() {
         super(R.layout.product_fragment);
-            }
+    }
+
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);

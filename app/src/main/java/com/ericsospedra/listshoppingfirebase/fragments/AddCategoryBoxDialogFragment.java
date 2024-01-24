@@ -33,14 +33,14 @@ public class AddCategoryBoxDialogFragment extends DialogFragment {
         LayoutInflater inflater = requireActivity().getLayoutInflater();
         View view = inflater.inflate(R.layout.dialog_add_list, null);
 
-        final EditText etListName = view.findViewById(R.id.etAddItem);
+        final EditText eCategoryName = view.findViewById(R.id.etAddItem);
 
         builder.setView(view)
                 .setTitle("Nueva Categoria")
                 .setPositiveButton("Aceptar", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
-                        String item = etListName.getText().toString().trim();
+                        String item = eCategoryName.getText().toString().trim();
                         if (!item.isEmpty() && listener != null) {
                             listener.onCategoryAdd(item);
                         }
