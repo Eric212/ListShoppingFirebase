@@ -15,11 +15,9 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 
-import com.ericsospedra.listshoppingfirebase.fragments.AddCategoryBoxDialogFragment;
 import com.ericsospedra.listshoppingfirebase.fragments.AddListBoxDialogFragment;
-import com.ericsospedra.listshoppingfirebase.fragments.AddProductBoxDialogFragment;
+import com.ericsospedra.listshoppingfirebase.fragments.LinesOfShoppingListFragment;
 import com.ericsospedra.listshoppingfirebase.interfaces.IOnClickListener;
-import com.ericsospedra.listshoppingfirebase.models.Category;
 import com.ericsospedra.listshoppingfirebase.models.ShoppingList;
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -37,7 +35,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import java.util.Date;
 
 
-public class MainActivity extends AppCompatActivity implements AddListBoxDialogFragment.OnListAddedListener, AddCategoryBoxDialogFragment.OnCategoryAddedListener, AddProductBoxDialogFragment.OnProductAddedListener, IOnClickListener {
+public class MainActivity extends AppCompatActivity implements AddListBoxDialogFragment.OnListAddedListener, IOnClickListener, LinesOfShoppingListFragment.IOnAttach {
     private FirebaseUser firebaseUser;
     private FirebaseFirestore db;
 
@@ -86,7 +84,7 @@ public class MainActivity extends AppCompatActivity implements AddListBoxDialogF
     //TODO: Implements user filter for duplicate lists check
     @Override
     public void onListAdded(String listName) {
-        ShoppingList list = new ShoppingList(listName, "shopping_list", new Date().getTime(), 0, linesOfShoppingLists);
+        ShoppingList list = new ShoppingList(listName, "shopping_list", new Date().getTime(), 0, null);
         db.collection("ShoppingLists").whereEqualTo("name", list.getName()).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
@@ -105,9 +103,7 @@ public class MainActivity extends AppCompatActivity implements AddListBoxDialogF
                             }
                         });
                     } else {
-                        for (QueryDocumentSnapshot document : task.getResult()) {
-                            Toast.makeText(MainActivity.this, "Error al crear la lista, ya existe una lista con este nombre", Toast.LENGTH_SHORT).show();
-                        }
+                        Toast.makeText(MainActivity.this, "Error al crear la lista, ya existe una lista con este nombre", Toast.LENGTH_SHORT).show();
                     }
                 }
             }
@@ -115,49 +111,12 @@ public class MainActivity extends AppCompatActivity implements AddListBoxDialogF
     }
 
     @Override
-    public void onCategoryAdd(String item) {
-        Category category = new Category(item, item.toLowerCase(), null);
-        db.collection("ShoppingLists").add(category).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-            @Override
-            public void onSuccess(DocumentReference documentReference) {
-                Log.d(MainActivity.class.getSimpleName(), "Lista añadida correctamente:" + category.getName());
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Log.d(MainActivity.class.getSimpleName(), "Error al añadir la lista");
-                Log.e(MainActivity.class.getSimpleName(), e.getMessage());
-            }
-        });
-    }
-
-    @Override
-    public void onProductAdd(String item) {
-        ShoppingList list = new ShoppingList(item, item.toLowerCase(), new Date().getTime(), 0, linesOfShoppingLists);
-        db.collection("ShoppingLists").add(list).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-            @Override
-            public void onSuccess(DocumentReference documentReference) {
-                Log.d(MainActivity.class.getSimpleName(), "Lista añadida correctamente:" + list.getName());
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Log.d(MainActivity.class.getSimpleName(), "Error al añadir la lista");
-                Log.e(MainActivity.class.getSimpleName(), e.getMessage());
-            }
-        });
-    }
-
-    @Override
     public void onClick(String s) {
-        manager = getSupportFragmentManager();
-        db.collection("ShoppingLists").whereEqualTo("name", s).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()) {
 
-                }
-            }
-        });
+    }
+
+    @Override
+    public String getListId(String s) {
+        return s;
     }
 }

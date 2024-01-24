@@ -12,7 +12,7 @@ import com.ericsospedra.listshoppingfirebase.R;
 
 public class LinesOfShoppingListFragment extends Fragment {
     public interface IOnAttach {
-        String getListId();
+        String getListId(String s);
     }
 
     public LinesOfShoppingListFragment() {

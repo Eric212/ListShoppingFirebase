@@ -1,5 +1,6 @@
 package com.ericsospedra.listshoppingfirebase.fragments;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.view.View;
 
@@ -11,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.ericsospedra.listshoppingfirebase.R;
 import com.ericsospedra.listshoppingfirebase.adapters.ShoppingListAdapter;
+import com.ericsospedra.listshoppingfirebase.interfaces.IOnClickListener;
 import com.ericsospedra.listshoppingfirebase.models.ShoppingList;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.firebase.firestore.CollectionReference;
@@ -19,9 +21,9 @@ import com.google.firebase.firestore.Query;
 
 
 public class ShoppingListFragment extends Fragment {
-
-    FirebaseFirestore firebase;
-    ShoppingListAdapter adapter;
+    private FirebaseFirestore firebase;
+    private ShoppingListAdapter adapter;
+    private IOnClickListener listener;
 
     public ShoppingListFragment() {
         super(R.layout.shoping_list_fragment);
@@ -47,9 +49,14 @@ public class ShoppingListFragment extends Fragment {
         CollectionReference ref = firebase.collection("ShoppingLists");
         Query query = ref.orderBy("name");
         FirestoreRecyclerOptions<ShoppingList> options = new FirestoreRecyclerOptions.Builder<ShoppingList>().setQuery(query, ShoppingList.class).build();
-        adapter = new ShoppingListAdapter(options);
+        adapter = new ShoppingListAdapter(options, listener);
         rvShoppingList.setAdapter(adapter);
         rvShoppingList.setLayoutManager(new LinearLayoutManager(view.getContext(), LinearLayoutManager.VERTICAL, false));
+    }
 
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        listener = (IOnClickListener) context;
     }
 }
