@@ -15,6 +15,8 @@ import com.ericsospedra.listshoppingfirebase.adapters.ShoppingListAdapter;
 import com.ericsospedra.listshoppingfirebase.interfaces.IOnClickListener;
 import com.ericsospedra.listshoppingfirebase.models.ShoppingList;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
@@ -24,6 +26,7 @@ public class ShoppingListFragment extends Fragment {
     private FirebaseFirestore firebase;
     private ShoppingListAdapter adapter;
     private IOnClickListener listener;
+    private FirebaseUser firebaseUser;
 
     public ShoppingListFragment() {
         super(R.layout.shoping_list_fragment);
@@ -43,11 +46,12 @@ public class ShoppingListFragment extends Fragment {
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         super.onViewCreated(view, savedInstanceState);
         firebase = FirebaseFirestore.getInstance();
         RecyclerView rvShoppingList = view.findViewById(R.id.rvShoppingList);
         CollectionReference ref = firebase.collection("ShoppingLists");
-        Query query = ref.orderBy("name");
+        Query query = ref.orderBy("date", Query.Direction.DESCENDING);
         FirestoreRecyclerOptions<ShoppingList> options = new FirestoreRecyclerOptions.Builder<ShoppingList>().setQuery(query, ShoppingList.class).build();
         adapter = new ShoppingListAdapter(options, listener);
         rvShoppingList.setAdapter(adapter);

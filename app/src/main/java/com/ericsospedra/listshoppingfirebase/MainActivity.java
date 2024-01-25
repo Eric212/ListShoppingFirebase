@@ -13,11 +13,18 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
+import com.ericsospedra.listshoppingfirebase.fragments.AddCategoryBoxDialogFragment;
 import com.ericsospedra.listshoppingfirebase.fragments.AddListBoxDialogFragment;
+import com.ericsospedra.listshoppingfirebase.fragments.AddProductBoxDialogFragment;
+import com.ericsospedra.listshoppingfirebase.fragments.CategoryFragment;
 import com.ericsospedra.listshoppingfirebase.fragments.LinesOfShoppingListFragment;
+import com.ericsospedra.listshoppingfirebase.fragments.ShoppingListFragment;
 import com.ericsospedra.listshoppingfirebase.interfaces.IOnClickListener;
+import com.ericsospedra.listshoppingfirebase.models.Category;
+import com.ericsospedra.listshoppingfirebase.models.Product;
 import com.ericsospedra.listshoppingfirebase.models.ShoppingList;
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -28,18 +35,19 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.Date;
 
 
-public class MainActivity extends AppCompatActivity implements AddListBoxDialogFragment.OnListAddedListener, IOnClickListener, LinesOfShoppingListFragment.IOnAttach {
+public class MainActivity extends AppCompatActivity implements AddListBoxDialogFragment.OnListAddedListener, AddCategoryBoxDialogFragment.OnCategoryAddedListener, IOnClickListener, LinesOfShoppingListFragment.IOnAttach, AddProductBoxDialogFragment.OnProductAddedListener {
     private FirebaseUser firebaseUser;
     private FirebaseFirestore db;
 
     private FragmentManager manager;
+    private String pipe;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,9 +83,22 @@ public class MainActivity extends AppCompatActivity implements AddListBoxDialogF
     }
 
     private void showAddListDialog() {
-        AddListBoxDialogFragment dialog = new AddListBoxDialogFragment();
-        dialog.setOnListAddedListener(this);
-        dialog.show(getSupportFragmentManager(), "AddListDialogFragment");
+        Fragment f = manager.findFragmentById(R.id.fcvMain);
+        if (f instanceof ShoppingListFragment) {
+            AddListBoxDialogFragment dialog = new AddListBoxDialogFragment();
+            dialog.setOnListAddedListener(this);
+            dialog.show(getSupportFragmentManager(), "AddListDialogFragment");
+        } else if (f instanceof LinesOfShoppingListFragment) {
+            manager.beginTransaction().setReorderingAllowed(true).addToBackStack(null).replace(R.id.fcvMain, CategoryFragment.class,null).commit();
+        } else if (f instanceof CategoryFragment) {
+            AddCategoryBoxDialogFragment dialog = new AddCategoryBoxDialogFragment();
+            dialog.setOnListAddedListener(this);
+            dialog.show(getSupportFragmentManager(), "AddListDialogFragment");
+        } else{
+            AddProductBoxDialogFragment dialog = new AddProductBoxDialogFragment();
+            dialog.setOnListAddedListener(this);
+            dialog.show(getSupportFragmentManager(), "AddListDialogFragment");
+        }
     }
 
 
@@ -111,12 +132,99 @@ public class MainActivity extends AppCompatActivity implements AddListBoxDialogF
     }
 
     @Override
+    public void onCategoryAdd(String item) {
+        Category c = new Category(item, item, null);
+        db.collection("Categories").whereEqualTo("name", c.getName()).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    if (task.getResult().size() == 0) {
+                        db.collection("ShoppingLists").add(c).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                            @Override
+                            public void onSuccess(DocumentReference documentReference) {
+                                Log.d(MainActivity.class.getSimpleName(), "Lista añadida correctamente:" + c.getName());
+                            }
+                        }).addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.d(MainActivity.class.getSimpleName(), "Error al añadir la lista");
+                                Log.e(MainActivity.class.getSimpleName(), e.getMessage());
+                            }
+                        });
+                    } else {
+                        Toast.makeText(MainActivity.this, "Error al crear la categoria, ya existe una categoria con este nombre", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
+        });
+    }
+    @Override
+    public void onProductAdd(String item) {
+        Product p = new Product(item,item);
+        db.collection("Categories").whereEqualTo("name", p.getName()).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    if (task.getResult().size() == 0) {
+                        db.collection("ShoppingLists").add(c).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                            @Override
+                            public void onSuccess(DocumentReference documentReference) {
+                                Log.d(MainActivity.class.getSimpleName(), "Lista añadida correctamente:" + c.getName());
+                            }
+                        }).addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.d(MainActivity.class.getSimpleName(), "Error al añadir la lista");
+                                Log.e(MainActivity.class.getSimpleName(), e.getMessage());
+                            }
+                        });
+                    } else {
+                        Toast.makeText(MainActivity.this, "Error al crear la categoria, ya existe una categoria con este nombre", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
+        });
+    }
+    @Override
     public void onClick(String s) {
-
+        manager = getSupportFragmentManager();
+        pipe = null;
+        db.collection("ShoppingLists").document(s).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    if (!task.getResult().getData().isEmpty()) {
+                        pipe = s;
+                        int f = findViewById(R.id.fcvMain).getId();
+                        manager.beginTransaction().setReorderingAllowed(true).addToBackStack(null).replace(f, LinesOfShoppingListFragment.class, null).commit();
+                    }
+                }
+            }
+        });
+        /*db.collection("Categories").document(s).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    if (!task.getResult().getData().isEmpty()) {
+                        pipe = s;
+                    }
+                }
+            }
+        });*/
+        /*db.collection("Productos").document(s).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    if (!task.getResult().getData().isEmpty()) {
+                        pipe = s;
+                    }
+                }
+            }
+        });*/
     }
 
     @Override
-    public String getListId(String s) {
-        return s;
+    public String getListId() {
+        return pipe;
     }
 }

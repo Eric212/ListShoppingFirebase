@@ -31,7 +31,7 @@ public class AddProductBoxDialogFragment extends DialogFragment implements IOnCl
 
     public interface OnProductAddedListener {
 
-        void onProductAdd(String item);
+        void onProductAdd(String item,String categoryId);
     }
 
     private OnProductAddedListener listener;
@@ -90,7 +90,7 @@ public class AddProductBoxDialogFragment extends DialogFragment implements IOnCl
                         String item = eProductName.getText().toString().trim();
                         String item2 = eProductCategory.getText().toString().trim();
                         if (!item.isEmpty() && listener != null) {
-                            listener.onProductAdd(item);
+                            listener.onProductAdd(item,item2);
                         }
                     }
                 })
