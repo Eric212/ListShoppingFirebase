@@ -1,7 +1,4 @@
-package com.ericsospedra.listshoppingfirebase.fragments;/*
-@author sheila j. nieto 
-@version 0.1 2024 -01 - 13
-*/
+package com.ericsospedra.listshoppingfirebase.fragments;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -31,9 +28,9 @@ public class AddCategoryBoxDialogFragment extends DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         LayoutInflater inflater = requireActivity().getLayoutInflater();
-        View view = inflater.inflate(R.layout.dialog_add_list, null);
+        View view = inflater.inflate(R.layout.dialog_add_category, null);
 
-        final EditText eCategoryName = view.findViewById(R.id.etAddItem);
+        final EditText eCategoryName = view.findViewById(R.id.etAddCategory);
 
         builder.setView(view)
                 .setTitle("Nueva Categoria")

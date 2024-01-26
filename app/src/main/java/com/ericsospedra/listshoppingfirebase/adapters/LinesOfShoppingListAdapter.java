@@ -34,8 +34,8 @@ public class LinesOfShoppingListAdapter extends FirestoreRecyclerAdapter<Shoppin
     }
 
     public class LinesOfShoppingListViewHolder extends RecyclerView.ViewHolder {
-        private ImageView ivLineOfShoppingList;
-        private TextView tvLineOfShoppingList;
+        private final ImageView ivLineOfShoppingList;
+        private final TextView tvLineOfShoppingList;
 
         public LinesOfShoppingListViewHolder(@NonNull View itemView) {
             super(itemView);

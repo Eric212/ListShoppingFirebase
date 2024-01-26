@@ -5,4 +5,6 @@
     <string name="add_shoppinglist">Add ShoppingList</string>
     <string name="name">Name</string>
     <string name="categoria">Categoria</string>
+    <string name="seleccione_una_categoria">Seleccione una Categoria</string>
+    <string name="inserta_nombre_de_la_categoria">Inserta nombre de la categoria</string>
 </resources>

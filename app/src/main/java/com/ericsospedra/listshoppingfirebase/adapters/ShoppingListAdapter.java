@@ -27,7 +27,7 @@ public class ShoppingListAdapter extends FirestoreRecyclerAdapter<ShoppingList, 
      * @param options
      */
 
-    private IOnClickListener listener;
+    private final IOnClickListener listener;
 
     public ShoppingListAdapter(@NonNull FirestoreRecyclerOptions<ShoppingList> options, IOnClickListener listener) {
         super(options);
@@ -70,7 +70,7 @@ public class ShoppingListAdapter extends FirestoreRecyclerAdapter<ShoppingList, 
         @Override
         public void onClick(View v) {
             if (listener != null) {
-                listener.onClick(getSnapshots().getSnapshot(getBindingAdapterPosition()).getId().toString());
+                listener.onClick(getSnapshots().getSnapshot(getBindingAdapterPosition()).getId());
             }
         }
     }

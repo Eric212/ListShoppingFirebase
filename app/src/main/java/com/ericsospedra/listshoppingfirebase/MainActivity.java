@@ -21,9 +21,11 @@ import com.ericsospedra.listshoppingfirebase.fragments.AddListBoxDialogFragment;
 import com.ericsospedra.listshoppingfirebase.fragments.AddProductBoxDialogFragment;
 import com.ericsospedra.listshoppingfirebase.fragments.CategoryFragment;
 import com.ericsospedra.listshoppingfirebase.fragments.LinesOfShoppingListFragment;
+import com.ericsospedra.listshoppingfirebase.fragments.ProductFragment;
 import com.ericsospedra.listshoppingfirebase.fragments.ShoppingListFragment;
 import com.ericsospedra.listshoppingfirebase.interfaces.IOnClickListener;
 import com.ericsospedra.listshoppingfirebase.models.Category;
+import com.ericsospedra.listshoppingfirebase.models.LinesOfShoppingList;
 import com.ericsospedra.listshoppingfirebase.models.Product;
 import com.ericsospedra.listshoppingfirebase.models.ShoppingList;
 import com.firebase.ui.auth.AuthUI;
@@ -39,15 +41,18 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 
-public class MainActivity extends AppCompatActivity implements AddListBoxDialogFragment.OnListAddedListener, AddCategoryBoxDialogFragment.OnCategoryAddedListener, IOnClickListener, LinesOfShoppingListFragment.IOnAttach, AddProductBoxDialogFragment.OnProductAddedListener {
+public class MainActivity extends AppCompatActivity implements AddListBoxDialogFragment.OnListAddedListener, AddCategoryBoxDialogFragment.OnCategoryAddedListener, IOnClickListener, LinesOfShoppingListFragment.IOnAttach, AddProductBoxDialogFragment.OnProductAddedListener, ProductFragment.IOnAttach {
     private FirebaseUser firebaseUser;
     private FirebaseFirestore db;
 
     private FragmentManager manager;
-    private String pipe;
+    private String listId;
+    private String categoryId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +61,7 @@ public class MainActivity extends AppCompatActivity implements AddListBoxDialogF
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
 
         if (firebaseUser != null) {
+            manager = getSupportFragmentManager();
             Toast.makeText(this, "Bienvenido " + firebaseUser.getDisplayName(), Toast.LENGTH_SHORT).show();
             db = FirebaseFirestore.getInstance();
             FloatingActionButton btAdd = findViewById(R.id.btAdd);
@@ -89,12 +95,12 @@ public class MainActivity extends AppCompatActivity implements AddListBoxDialogF
             dialog.setOnListAddedListener(this);
             dialog.show(getSupportFragmentManager(), "AddListDialogFragment");
         } else if (f instanceof LinesOfShoppingListFragment) {
-            manager.beginTransaction().setReorderingAllowed(true).addToBackStack(null).replace(R.id.fcvMain, CategoryFragment.class,null).commit();
+            manager.beginTransaction().setReorderingAllowed(true).addToBackStack(null).replace(R.id.fcvMain, CategoryFragment.class, null).commit();
         } else if (f instanceof CategoryFragment) {
             AddCategoryBoxDialogFragment dialog = new AddCategoryBoxDialogFragment();
             dialog.setOnListAddedListener(this);
             dialog.show(getSupportFragmentManager(), "AddListDialogFragment");
-        } else{
+        } else {
             AddProductBoxDialogFragment dialog = new AddProductBoxDialogFragment();
             dialog.setOnListAddedListener(this);
             dialog.show(getSupportFragmentManager(), "AddListDialogFragment");
@@ -133,21 +139,21 @@ public class MainActivity extends AppCompatActivity implements AddListBoxDialogF
 
     @Override
     public void onCategoryAdd(String item) {
-        Category c = new Category(item, item, null);
+        Category c = new Category(item, item.toLowerCase(), null);
         db.collection("Categories").whereEqualTo("name", c.getName()).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
                     if (task.getResult().size() == 0) {
-                        db.collection("ShoppingLists").add(c).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                        db.collection("Categories").add(c).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                             @Override
                             public void onSuccess(DocumentReference documentReference) {
-                                Log.d(MainActivity.class.getSimpleName(), "Lista añadida correctamente:" + c.getName());
+                                Log.d(MainActivity.class.getSimpleName(), "Categoria añadida correctamente: " + c.getName());
                             }
                         }).addOnFailureListener(new OnFailureListener() {
                             @Override
                             public void onFailure(@NonNull Exception e) {
-                                Log.d(MainActivity.class.getSimpleName(), "Error al añadir la lista");
+                                Log.d(MainActivity.class.getSimpleName(), "Error al añadir la categoria");
                                 Log.e(MainActivity.class.getSimpleName(), e.getMessage());
                             }
                         });
@@ -158,73 +164,121 @@ public class MainActivity extends AppCompatActivity implements AddListBoxDialogF
             }
         });
     }
+
     @Override
     public void onProductAdd(String item) {
-        Product p = new Product(item,item);
-        db.collection("Categories").whereEqualTo("name", p.getName()).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+        Product p = new Product(item, item.toLowerCase());
+        db.collection("Categories").document(categoryId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
-                    if (task.getResult().size() == 0) {
-                        db.collection("ShoppingLists").add(c).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                    if (task.getResult().getData() != null) {
+                        Category c = task.getResult().toObject(Category.class);
+                        List<Product> list = c.getProductList();
+                        if (list != null) {
+                            list.add(p);
+                        } else {
+                            list = new ArrayList<>();
+                            list.add(p);
+                        }
+                        db.collection("Categories").document(categoryId).update("productList", list).addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
-                            public void onSuccess(DocumentReference documentReference) {
-                                Log.d(MainActivity.class.getSimpleName(), "Lista añadida correctamente:" + c.getName());
+                            public void onSuccess(Void unused) {
+                                Log.d(MainActivity.class.getSimpleName(), "Producto añadida correctamente: " + p.getName());
                             }
                         }).addOnFailureListener(new OnFailureListener() {
                             @Override
                             public void onFailure(@NonNull Exception e) {
-                                Log.d(MainActivity.class.getSimpleName(), "Error al añadir la lista");
-                                Log.e(MainActivity.class.getSimpleName(), e.getMessage());
+                                Toast.makeText(MainActivity.this, "Error al añadir el producto", Toast.LENGTH_SHORT).show();
                             }
                         });
-                    } else {
-                        Toast.makeText(MainActivity.this, "Error al crear la categoria, ya existe una categoria con este nombre", Toast.LENGTH_SHORT).show();
                     }
                 }
             }
         });
     }
+
     @Override
     public void onClick(String s) {
-        manager = getSupportFragmentManager();
-        pipe = null;
-        db.collection("ShoppingLists").document(s).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    if (!task.getResult().getData().isEmpty()) {
-                        pipe = s;
-                        int f = findViewById(R.id.fcvMain).getId();
-                        manager.beginTransaction().setReorderingAllowed(true).addToBackStack(null).replace(f, LinesOfShoppingListFragment.class, null).commit();
+        if (manager.findFragmentById(R.id.fcvMain) instanceof ShoppingListFragment) {
+            db.collection("ShoppingLists").document(s).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                    if (task.isSuccessful()) {
+                        if (task.getResult().getData() != null) {
+                            listId = s;
+                            int f = findViewById(R.id.fcvMain).getId();
+                            manager.beginTransaction().setReorderingAllowed(true).addToBackStack(null).replace(f, LinesOfShoppingListFragment.class, null).commit();
+                        }
                     }
                 }
-            }
-        });
-        /*db.collection("Categories").document(s).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    if (!task.getResult().getData().isEmpty()) {
-                        pipe = s;
+            });
+        }
+        if (manager.findFragmentById(R.id.fcvMain) instanceof CategoryFragment) {
+            db.collection("Categories").document(s).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                    if (task.isSuccessful()) {
+                        if (task.getResult().getData() != null) {
+                            categoryId = s;
+                            manager.beginTransaction().setReorderingAllowed(true).addToBackStack(null).replace(R.id.fcvMain, ProductFragment.class, null).commit();
+                        }
                     }
                 }
-            }
-        });*/
-        /*db.collection("Productos").document(s).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    if (!task.getResult().getData().isEmpty()) {
-                        pipe = s;
+            });
+        }
+        if (manager.findFragmentById(R.id.fcvMain) instanceof ProductFragment) {
+            db.collection("Categories").document(categoryId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                    if (task.isSuccessful()) {
+                        if (task.getResult().getData() != null) {
+                            Category c = task.getResult().toObject(Category.class);
+                            List<Product> products = c.getProductList();
+                            LinesOfShoppingList line = new LinesOfShoppingList();
+                            for (Product p : products) {
+                                if(p.getName().equals(s)){
+                                    line.setName(p.getName());
+                                    line.setImage(p.getImage());
+                                    db.collection("ShoppingLists").document(listId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                            if (task.isSuccessful()){
+                                                List<LinesOfShoppingList> lines = task.getResult().toObject(ShoppingList.class).getLinesOfShoppingLists();
+                                                if (lines == null) {
+                                                    lines = new ArrayList<>();
+                                                }
+                                                lines.add(line);
+                                                db.collection("ShoppingLists").document(listId).update("linesOfShoppingLists", lines).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                    @Override
+                                                    public void onSuccess(Void unused) {
+                                                        Log.d(MainActivity.class.getSimpleName(), "Producto añadida correctamente a la lista ");
+                                                    }
+                                                }).addOnFailureListener(new OnFailureListener() {
+                                                    @Override
+                                                    public void onFailure(@NonNull Exception e) {
+                                                        Toast.makeText(MainActivity.this, "Error al añadir el producto a la lista", Toast.LENGTH_SHORT).show();
+                                                    }
+                                                });
+                                            }
+                                        }
+                                    });
+                                }
+                            }
+                        }
                     }
                 }
-            }
-        });*/
+            });
+        }
     }
 
     @Override
     public String getListId() {
-        return pipe;
+        return listId;
+    }
+
+    @Override
+    public String getCategoryId() {
+        return categoryId;
     }
 }

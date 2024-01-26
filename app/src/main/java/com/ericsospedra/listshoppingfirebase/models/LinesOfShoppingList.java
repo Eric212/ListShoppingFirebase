@@ -1,22 +1,24 @@
 package com.ericsospedra.listshoppingfirebase.models;
 
 public class LinesOfShoppingList {
-    private int id;
+    private String id;
     private String image;
     private String name;
 
     public LinesOfShoppingList() {
     }
 
-    public LinesOfShoppingList(int id) {
+    public LinesOfShoppingList(String id, String name, String image) {
         this.id = id;
+        this.name = name;
+        this.image = image;
     }
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 
