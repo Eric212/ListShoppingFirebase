@@ -11,20 +11,17 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.ericsospedra.listshoppingfirebase.R;
 import com.ericsospedra.listshoppingfirebase.models.LinesOfShoppingList;
-import com.ericsospedra.listshoppingfirebase.models.ShoppingList;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 
-public class LinesOfShoppingListAdapter extends FirestoreRecyclerAdapter<ShoppingList, LinesOfShoppingListAdapter.LinesOfShoppingListViewHolder> {
-    public LinesOfShoppingListAdapter(FirestoreRecyclerOptions<ShoppingList> options) {
+public class LinesOfShoppingListAdapter extends FirestoreRecyclerAdapter<LinesOfShoppingList, LinesOfShoppingListAdapter.LinesOfShoppingListViewHolder> {
+    public LinesOfShoppingListAdapter(FirestoreRecyclerOptions<LinesOfShoppingList> options) {
         super(options);
     }
 
     @Override
-    protected void onBindViewHolder(@NonNull LinesOfShoppingListAdapter.LinesOfShoppingListViewHolder holder, int position, @NonNull ShoppingList model) {
-        if (model.getLinesOfShoppingLists() != null) {
-            holder.onBindLineOfShoppingList(model.getLinesOfShoppingLists().get(position));
-        }
+    protected void onBindViewHolder(@NonNull LinesOfShoppingListAdapter.LinesOfShoppingListViewHolder holder, int position, @NonNull LinesOfShoppingList model) {
+        holder.onBindLineOfShoppingList(model);
     }
 
     @NonNull

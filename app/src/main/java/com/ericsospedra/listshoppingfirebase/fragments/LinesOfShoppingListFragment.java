@@ -12,11 +12,11 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.ericsospedra.listshoppingfirebase.R;
 import com.ericsospedra.listshoppingfirebase.adapters.LinesOfShoppingListAdapter;
+import com.ericsospedra.listshoppingfirebase.models.LinesOfShoppingList;
 import com.ericsospedra.listshoppingfirebase.models.ShoppingList;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.firebase.ui.firestore.SnapshotParser;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
@@ -26,6 +26,7 @@ public class LinesOfShoppingListFragment extends Fragment {
     public interface IOnAttach {
         String getListId();
     }
+
     private String shoppingListId;
     private FirebaseFirestore firebase;
 
@@ -52,22 +53,11 @@ public class LinesOfShoppingListFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         firebase = FirebaseFirestore.getInstance();
         RecyclerView rvLineOfShoppingList = view.findViewById(R.id.rvLineOfShoppingList);
-        CollectionReference ref = firebase.collection("ShoppingLists");
-        Query query = ref.whereEqualTo(FieldPath.documentId(),shoppingListId);
-         FirestoreRecyclerOptions<ShoppingList> options = new FirestoreRecyclerOptions.Builder<ShoppingList>().setQuery(query, new SnapshotParser<ShoppingList>() {
-             @NonNull
-             @Override
-             public ShoppingList parseSnapshot(@NonNull DocumentSnapshot snapshot) {
-                 if(snapshot.getId().equals(shoppingListId)){
-                     ShoppingList list = snapshot.toObject(ShoppingList.class);
-                     return list;
-                 }
-                 return null;
-             }
-         }).build();
+        CollectionReference ref = firebase.collection("ShoppingLists").document(shoppingListId).collection("LinesOfShoppingList");
+        FirestoreRecyclerOptions<LinesOfShoppingList> options = new FirestoreRecyclerOptions.Builder<LinesOfShoppingList>().setQuery(ref, LinesOfShoppingList.class).build();
         adapter = new LinesOfShoppingListAdapter(options);
         rvLineOfShoppingList.setAdapter(adapter);
-        rvLineOfShoppingList.setLayoutManager(new LinearLayoutManager(view.getContext(),RecyclerView.VERTICAL,false));
+        rvLineOfShoppingList.setLayoutManager(new LinearLayoutManager(view.getContext(), RecyclerView.VERTICAL, false));
     }
 
     @Override
