@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.ericsospedra.listshoppingfirebase.R;
 import com.ericsospedra.listshoppingfirebase.adapters.ShoppingListAdapter;
 import com.ericsospedra.listshoppingfirebase.interfaces.IOnClickListener;
+import com.ericsospedra.listshoppingfirebase.interfaces.OnLongClickListener;
 import com.ericsospedra.listshoppingfirebase.models.ShoppingList;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.firebase.auth.FirebaseAuth;
@@ -27,7 +28,7 @@ public class ShoppingListFragment extends Fragment {
     private FirebaseFirestore firebase;
     private ShoppingListAdapter adapter;
     private IOnClickListener listener;
-    private FirebaseUser firebaseUser;
+    private OnLongClickListener longClickListener;
 
     public ShoppingListFragment() {
         super(R.layout.shoping_list_fragment);
@@ -53,14 +54,13 @@ public class ShoppingListFragment extends Fragment {
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         super.onViewCreated(view, savedInstanceState);
         firebase = FirebaseFirestore.getInstance();
         RecyclerView rvShoppingList = view.findViewById(R.id.rvShoppingList);
         CollectionReference ref = firebase.collection("ShoppingLists");
         Query query = ref.orderBy("date", Query.Direction.DESCENDING);
         FirestoreRecyclerOptions<ShoppingList> options = new FirestoreRecyclerOptions.Builder<ShoppingList>().setQuery(query, ShoppingList.class).build();
-        adapter = new ShoppingListAdapter(options, listener);
+        adapter = new ShoppingListAdapter(options, listener,longClickListener);
         rvShoppingList.setAdapter(adapter);
         rvShoppingList.setLayoutManager(new LinearLayoutManager(view.getContext(), LinearLayoutManager.VERTICAL, false));
     }
@@ -69,5 +69,6 @@ public class ShoppingListFragment extends Fragment {
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         listener = (IOnClickListener) context;
+        longClickListener = (OnLongClickListener) context;
     }
 }

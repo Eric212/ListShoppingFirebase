@@ -10,13 +10,17 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.ericsospedra.listshoppingfirebase.R;
+import com.ericsospedra.listshoppingfirebase.interfaces.OnLongClickListener;
 import com.ericsospedra.listshoppingfirebase.models.LinesOfShoppingList;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 
 public class LinesOfShoppingListAdapter extends FirestoreRecyclerAdapter<LinesOfShoppingList, LinesOfShoppingListAdapter.LinesOfShoppingListViewHolder> {
-    public LinesOfShoppingListAdapter(FirestoreRecyclerOptions<LinesOfShoppingList> options) {
+    private OnLongClickListener longListener;
+
+    public LinesOfShoppingListAdapter(FirestoreRecyclerOptions<LinesOfShoppingList> options, OnLongClickListener longListener) {
         super(options);
+        this.longListener = longListener;
     }
 
     @Override
@@ -30,7 +34,7 @@ public class LinesOfShoppingListAdapter extends FirestoreRecyclerAdapter<LinesOf
         return new LinesOfShoppingListViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.item_line_of_shopping_list, parent, false));
     }
 
-    public class LinesOfShoppingListViewHolder extends RecyclerView.ViewHolder {
+    public class LinesOfShoppingListViewHolder extends RecyclerView.ViewHolder implements View.OnLongClickListener {
         private final ImageView ivLineOfShoppingList;
         private final TextView tvLineOfShoppingList;
 
@@ -38,11 +42,22 @@ public class LinesOfShoppingListAdapter extends FirestoreRecyclerAdapter<LinesOf
             super(itemView);
             ivLineOfShoppingList = itemView.findViewById(R.id.ivLineOfShoppingList);
             tvLineOfShoppingList = itemView.findViewById(R.id.tvLineOfShoppingList);
+            itemView.setOnLongClickListener(this);
         }
 
         public void onBindLineOfShoppingList(LinesOfShoppingList model) {
             ivLineOfShoppingList.setImageResource(itemView.getContext().getResources().getIdentifier(model.getImage(), "drawable", itemView.getContext().getPackageName()));
             tvLineOfShoppingList.setText(model.getName());
+        }
+
+        @Override
+        public boolean onLongClick(View v) {
+            if(longListener != null){
+                longListener.onLongClick(getSnapshots().getSnapshot(getBindingAdapterPosition()).getId());
+                return true;
+            }else {
+                return false;
+            }
         }
     }
 }

@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResult;
@@ -20,10 +22,12 @@ import com.ericsospedra.listshoppingfirebase.fragments.AddCategoryBoxDialogFragm
 import com.ericsospedra.listshoppingfirebase.fragments.AddListBoxDialogFragment;
 import com.ericsospedra.listshoppingfirebase.fragments.AddProductBoxDialogFragment;
 import com.ericsospedra.listshoppingfirebase.fragments.CategoryFragment;
+import com.ericsospedra.listshoppingfirebase.fragments.DeleteShoppingListBoxDialogFragment;
 import com.ericsospedra.listshoppingfirebase.fragments.LinesOfShoppingListFragment;
 import com.ericsospedra.listshoppingfirebase.fragments.ProductFragment;
 import com.ericsospedra.listshoppingfirebase.fragments.ShoppingListFragment;
 import com.ericsospedra.listshoppingfirebase.interfaces.IOnClickListener;
+import com.ericsospedra.listshoppingfirebase.interfaces.OnLongClickListener;
 import com.ericsospedra.listshoppingfirebase.models.Category;
 import com.ericsospedra.listshoppingfirebase.models.LinesOfShoppingList;
 import com.ericsospedra.listshoppingfirebase.models.Product;
@@ -38,17 +42,19 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 
-public class MainActivity extends AppCompatActivity implements AddListBoxDialogFragment.OnListAddedListener, AddCategoryBoxDialogFragment.OnCategoryAddedListener, IOnClickListener, LinesOfShoppingListFragment.IOnAttach, AddProductBoxDialogFragment.OnProductAddedListener, ProductFragment.IOnAttach {
+public class MainActivity extends AppCompatActivity implements AddListBoxDialogFragment.OnListAddedListener,
+        AddCategoryBoxDialogFragment.OnCategoryAddedListener,
+        IOnClickListener, LinesOfShoppingListFragment.IOnAttach,
+        AddProductBoxDialogFragment.OnProductAddedListener,
+        ProductFragment.IOnAttach,
+        OnLongClickListener, DeleteShoppingListBoxDialogFragment.OnDeleteListListener {
     private FirebaseUser firebaseUser;
     private FirebaseFirestore db;
 
@@ -95,23 +101,31 @@ public class MainActivity extends AppCompatActivity implements AddListBoxDialogF
         if (f instanceof ShoppingListFragment) {
             AddListBoxDialogFragment dialog = new AddListBoxDialogFragment();
             dialog.setOnListAddedListener(this);
-            dialog.show(getSupportFragmentManager(), "AddListDialogFragment");
+            dialog.show(manager, "AddListDialogFragment");
         } else if (f instanceof LinesOfShoppingListFragment) {
             manager.beginTransaction().setReorderingAllowed(true).addToBackStack(null).replace(R.id.fcvMain, CategoryFragment.class, null).commit();
         } else if (f instanceof CategoryFragment) {
             AddCategoryBoxDialogFragment dialog = new AddCategoryBoxDialogFragment();
-            dialog.setOnListAddedListener(this);
-            dialog.show(getSupportFragmentManager(), "AddListDialogFragment");
+            dialog.setOnCategoryAddedListener(this);
+            dialog.show(manager, "AddListDialogFragment");
         } else {
             AddProductBoxDialogFragment dialog = new AddProductBoxDialogFragment();
-            dialog.setOnListAddedListener(this);
+            dialog.setOnProductAddedListener(this);
             dialog.show(getSupportFragmentManager(), "AddListDialogFragment");
         }
     }
 
+    private void showDeleteListDialog(String s) {
+        if (manager.findFragmentById(R.id.fcvMain) instanceof ShoppingListFragment) {
+            DeleteShoppingListBoxDialogFragment dialog = new DeleteShoppingListBoxDialogFragment(s);
+            dialog.setOnDeleteList(this);
+            dialog.show(manager, "AddListDialogFragment");
+        }
+    }
 
     //TODO: Implements user filter for duplicate lists check
     @Override
+
     public void onListAdded(String listName) {
         ShoppingList list = new ShoppingList(listName, "shopping_list", new Date().getTime(), 0, null);
         db.collection("ShoppingLists").whereEqualTo("name", list.getName()).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -173,8 +187,8 @@ public class MainActivity extends AppCompatActivity implements AddListBoxDialogF
         db.collection("Categories").document(categoryId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if(task.isSuccessful()){
-                    Category c =task.getResult().toObject(Category.class);
+                if (task.isSuccessful()) {
+                    Category c = task.getResult().toObject(Category.class);
                     p.setImage(c.getImage());
                     db.collection("Categories").document(categoryId).collection("Products").add(p).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                         @Override
@@ -225,14 +239,15 @@ public class MainActivity extends AppCompatActivity implements AddListBoxDialogF
             db.collection("Categories").document(categoryId).collection("Products").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                 @Override
                 public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                    for(QueryDocumentSnapshot document : task.getResult()){
+                    for (QueryDocumentSnapshot document : task.getResult()) {
                         Product p = document.toObject(Product.class);
-                        if(p.getName().equals(s)){
-                            LinesOfShoppingList line = new LinesOfShoppingList(document.getId(), p.getName(),p.getImage());
+                        if (p.getName().equals(s)) {
+                            LinesOfShoppingList line = new LinesOfShoppingList(document.getId(), p.getName(), p.getImage());
                             db.collection("ShoppingLists").document(listId).collection("LinesOfShoppingList").add(line).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                                 @Override
                                 public void onSuccess(DocumentReference documentReference) {
-                                    Log.d(MainActivity.class.getSimpleName(),"Producto añadido a la lista");
+                                    Log.d(MainActivity.class.getSimpleName(), "Producto añadido a la lista");
+                                    updateCantidadProductos();
                                     manager.beginTransaction().setReorderingAllowed(true).addToBackStack(null).replace(R.id.fcvMain, LinesOfShoppingListFragment.class, null).commit();
                                 }
                             }).addOnFailureListener(new OnFailureListener() {
@@ -249,6 +264,55 @@ public class MainActivity extends AppCompatActivity implements AddListBoxDialogF
     }
 
     @Override
+    public void OnShoppingListDeleted(String item) {
+        db.collection("ShoppingLists").whereEqualTo("name",item).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if(task.isSuccessful()) {
+                    for(QueryDocumentSnapshot document : task.getResult()) {
+                        db.collection("ShoppingLists").document(document.getId()).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void unused) {
+                                Log.d(MainActivity.class.getSimpleName(), "Producto eliminado con exito de la lista de la compra");
+                            }
+                        }).addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Toast.makeText(MainActivity.this, "Error al eliminar el producto de la lista", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    }
+                }
+            }
+        });
+    }
+
+    private void updateCantidadProductos() {
+        db.collection("ShoppingLists").document(listId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    ShoppingList list = task.getResult().toObject(ShoppingList.class);
+                    db.collection("ShoppingLists").document(listId).collection("LinesOfShoppingList").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                            if (task.isSuccessful()) {
+                                list.setCantidadProductos(task.getResult().size());
+                                db.collection("ShoppingLists").document(listId).update("cantidadProductos", task.getResult().size()).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+
+                                    }
+                                });
+                            }
+                        }
+                    });
+                }
+            }
+        });
+    }
+
+    @Override
     public String getListId() {
         return listId;
     }
@@ -256,5 +320,24 @@ public class MainActivity extends AppCompatActivity implements AddListBoxDialogF
     @Override
     public String getCategoryId() {
         return categoryId;
+    }
+
+    @Override
+    public void onLongClick(String s) {
+        if (manager.findFragmentById(R.id.fcvMain) instanceof LinesOfShoppingListFragment) {
+            db.collection("ShoppingLists").document(listId).collection("LinesOfShoppingList").document(s).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void unused) {
+                    Log.d(MainActivity.class.getSimpleName(), "Producto eliminado con exito de la lista de la compra");
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Toast.makeText(MainActivity.this, "Error al eliminar el producto de la lista", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }else {
+            showDeleteListDialog(s);
+        }
     }
 }

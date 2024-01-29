@@ -52,7 +52,7 @@ public class AddCategoryBoxDialogFragment extends DialogFragment {
         return builder.create();
     }
 
-    public void setOnListAddedListener(OnCategoryAddedListener listener) {
+    public void setOnCategoryAddedListener(OnCategoryAddedListener listener) {
         this.listener = listener;
     }
 }

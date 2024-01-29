@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.ericsospedra.listshoppingfirebase.R;
 import com.ericsospedra.listshoppingfirebase.adapters.LinesOfShoppingListAdapter;
+import com.ericsospedra.listshoppingfirebase.interfaces.OnLongClickListener;
 import com.ericsospedra.listshoppingfirebase.models.LinesOfShoppingList;
 import com.ericsospedra.listshoppingfirebase.models.ShoppingList;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
@@ -23,6 +24,8 @@ import com.google.firebase.firestore.Query;
 
 
 public class LinesOfShoppingListFragment extends Fragment {
+    private OnLongClickListener longListener;
+
     public interface IOnAttach {
         String getListId();
     }
@@ -55,7 +58,7 @@ public class LinesOfShoppingListFragment extends Fragment {
         RecyclerView rvLineOfShoppingList = view.findViewById(R.id.rvLineOfShoppingList);
         CollectionReference ref = firebase.collection("ShoppingLists").document(shoppingListId).collection("LinesOfShoppingList");
         FirestoreRecyclerOptions<LinesOfShoppingList> options = new FirestoreRecyclerOptions.Builder<LinesOfShoppingList>().setQuery(ref, LinesOfShoppingList.class).build();
-        adapter = new LinesOfShoppingListAdapter(options);
+        adapter = new LinesOfShoppingListAdapter(options,longListener);
         rvLineOfShoppingList.setAdapter(adapter);
         rvLineOfShoppingList.setLayoutManager(new LinearLayoutManager(view.getContext(), RecyclerView.VERTICAL, false));
     }
@@ -65,5 +68,6 @@ public class LinesOfShoppingListFragment extends Fragment {
         super.onAttach(context);
         IOnAttach iOnAttach = (IOnAttach) context;
         shoppingListId = iOnAttach.getListId();
+        longListener = (OnLongClickListener) context;
     }
 }
