@@ -1,5 +1,5 @@
 package com.ericsospedra.listshoppingfirebase.interfaces;
 
-public interface OnLongClickListener {
+public interface IOnLongClickListener {
     void onLongClick(String s);
 }

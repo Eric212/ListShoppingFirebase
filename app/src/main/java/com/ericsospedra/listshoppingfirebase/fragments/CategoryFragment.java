@@ -2,6 +2,7 @@ package com.ericsospedra.listshoppingfirebase.fragments;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.text.Layout;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -14,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.ericsospedra.listshoppingfirebase.R;
 import com.ericsospedra.listshoppingfirebase.adapters.CategoryAdapter;
 import com.ericsospedra.listshoppingfirebase.interfaces.IOnClickListener;
+import com.ericsospedra.listshoppingfirebase.interfaces.IOnLongClickListener;
 import com.ericsospedra.listshoppingfirebase.models.Category;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.firebase.auth.FirebaseAuth;
@@ -27,7 +29,8 @@ public class CategoryFragment extends Fragment {
     private FirebaseFirestore firebase;
     private CategoryAdapter adapter;
     private IOnClickListener listener;
-    private FirebaseUser firebaseUser;
+    private IOnLongClickListener longListener;
+    private Context context;
 
     public CategoryFragment() {
         super(R.layout.category_fragment);
@@ -47,14 +50,13 @@ public class CategoryFragment extends Fragment {
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         super.onViewCreated(view, savedInstanceState);
         firebase = FirebaseFirestore.getInstance();
         RecyclerView rvCategories = view.findViewById(R.id.rvCategory);
         CollectionReference ref = firebase.collection("Categories");
         Query query = ref.orderBy("name", Query.Direction.ASCENDING);
         FirestoreRecyclerOptions<Category> options = new FirestoreRecyclerOptions.Builder<Category>().setQuery(query, Category.class).build();
-        adapter = new CategoryAdapter(options, listener);
+        adapter = new CategoryAdapter(options, listener,longListener);
         rvCategories.setAdapter(adapter);
         rvCategories.setLayoutManager(new LinearLayoutManager(view.getContext(), LinearLayoutManager.VERTICAL, false));
     }
@@ -63,5 +65,6 @@ public class CategoryFragment extends Fragment {
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         listener = (IOnClickListener) context;
+        longListener = (IOnLongClickListener) context;
     }
 }

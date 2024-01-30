@@ -10,15 +10,15 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.ericsospedra.listshoppingfirebase.R;
-import com.ericsospedra.listshoppingfirebase.interfaces.OnLongClickListener;
+import com.ericsospedra.listshoppingfirebase.interfaces.IOnLongClickListener;
 import com.ericsospedra.listshoppingfirebase.models.LinesOfShoppingList;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 
 public class LinesOfShoppingListAdapter extends FirestoreRecyclerAdapter<LinesOfShoppingList, LinesOfShoppingListAdapter.LinesOfShoppingListViewHolder> {
-    private OnLongClickListener longListener;
+    private IOnLongClickListener longListener;
 
-    public LinesOfShoppingListAdapter(FirestoreRecyclerOptions<LinesOfShoppingList> options, OnLongClickListener longListener) {
+    public LinesOfShoppingListAdapter(FirestoreRecyclerOptions<LinesOfShoppingList> options, IOnLongClickListener longListener) {
         super(options);
         this.longListener = longListener;
     }

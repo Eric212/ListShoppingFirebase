@@ -3,10 +3,9 @@ package com.ericsospedra.listshoppingfirebase;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Layout;
 import android.util.Log;
 import android.view.View;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResult;
@@ -22,12 +21,14 @@ import com.ericsospedra.listshoppingfirebase.fragments.AddCategoryBoxDialogFragm
 import com.ericsospedra.listshoppingfirebase.fragments.AddListBoxDialogFragment;
 import com.ericsospedra.listshoppingfirebase.fragments.AddProductBoxDialogFragment;
 import com.ericsospedra.listshoppingfirebase.fragments.CategoryFragment;
+import com.ericsospedra.listshoppingfirebase.fragments.DeleteCategoryBoxDialogFragment;
 import com.ericsospedra.listshoppingfirebase.fragments.DeleteShoppingListBoxDialogFragment;
+import com.ericsospedra.listshoppingfirebase.fragments.DeletedProductBoxDialogFragment;
 import com.ericsospedra.listshoppingfirebase.fragments.LinesOfShoppingListFragment;
 import com.ericsospedra.listshoppingfirebase.fragments.ProductFragment;
 import com.ericsospedra.listshoppingfirebase.fragments.ShoppingListFragment;
 import com.ericsospedra.listshoppingfirebase.interfaces.IOnClickListener;
-import com.ericsospedra.listshoppingfirebase.interfaces.OnLongClickListener;
+import com.ericsospedra.listshoppingfirebase.interfaces.IOnLongClickListener;
 import com.ericsospedra.listshoppingfirebase.models.Category;
 import com.ericsospedra.listshoppingfirebase.models.LinesOfShoppingList;
 import com.ericsospedra.listshoppingfirebase.models.Product;
@@ -54,7 +55,10 @@ public class MainActivity extends AppCompatActivity implements AddListBoxDialogF
         IOnClickListener, LinesOfShoppingListFragment.IOnAttach,
         AddProductBoxDialogFragment.OnProductAddedListener,
         ProductFragment.IOnAttach,
-        OnLongClickListener, DeleteShoppingListBoxDialogFragment.OnDeleteListListener {
+        IOnLongClickListener,
+        DeleteShoppingListBoxDialogFragment.OnDeleteListListener,
+        DeleteCategoryBoxDialogFragment.OnDeleteCategoryListener,
+        DeletedProductBoxDialogFragment.OnDeleteProductListener {
     private FirebaseUser firebaseUser;
     private FirebaseFirestore db;
 
@@ -120,6 +124,14 @@ public class MainActivity extends AppCompatActivity implements AddListBoxDialogF
             DeleteShoppingListBoxDialogFragment dialog = new DeleteShoppingListBoxDialogFragment(s);
             dialog.setOnDeleteList(this);
             dialog.show(manager, "AddListDialogFragment");
+        } else if (manager.findFragmentById(R.id.fcvMain) instanceof CategoryFragment) {
+            DeleteCategoryBoxDialogFragment dialog = new DeleteCategoryBoxDialogFragment(s);
+            dialog.setOnDeleteCategory(this);
+            dialog.show(manager, "AddListDialogFragment");
+        } else {
+            DeletedProductBoxDialogFragment dialog = new DeletedProductBoxDialogFragment(s);
+            dialog.setOnDeleteProduct(this);
+            dialog.show(manager, "AddListDialogFragment");
         }
     }
 
@@ -155,7 +167,7 @@ public class MainActivity extends AppCompatActivity implements AddListBoxDialogF
 
     @Override
     public void onCategoryAdd(String item) {
-        Category c = new Category(item, item.toLowerCase(), null);
+        Category c = new Category(item, item.toLowerCase());
         db.collection("Categories").whereEqualTo("name", c.getName()).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
@@ -265,26 +277,56 @@ public class MainActivity extends AppCompatActivity implements AddListBoxDialogF
 
     @Override
     public void OnShoppingListDeleted(String item) {
-        db.collection("ShoppingLists").whereEqualTo("name",item).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+        db.collection("ShoppingLists").whereEqualTo("name", item).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if(task.isSuccessful()) {
-                    for(QueryDocumentSnapshot document : task.getResult()) {
+                if (task.isSuccessful()) {
+                    for (QueryDocumentSnapshot document : task.getResult()) {
                         db.collection("ShoppingLists").document(document.getId()).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void unused) {
-                                Log.d(MainActivity.class.getSimpleName(), "Producto eliminado con exito de la lista de la compra");
+                                Log.d(MainActivity.class.getSimpleName(), "Lista eliminado con exito");
                             }
                         }).addOnFailureListener(new OnFailureListener() {
                             @Override
                             public void onFailure(@NonNull Exception e) {
-                                Toast.makeText(MainActivity.this, "Error al eliminar el producto de la lista", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(MainActivity.this, "Error al eliminar la lista", Toast.LENGTH_SHORT).show();
                             }
                         });
                     }
                 }
             }
         });
+    }
+
+    @Override
+    public void OnCategoryDeleted(String item) {
+        db.collection("Categories").whereEqualTo("name", item).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    for (QueryDocumentSnapshot document : task.getResult()) {
+                        db.collection("Categories").document(document.getId()).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void unused) {
+                                Log.d(MainActivity.class.getSimpleName(), "Categoria eliminado con exito");
+                            }
+                        }).addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Toast.makeText(MainActivity.this, "Error al eliminar la categoria", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    }
+                }
+            }
+        });
+    }
+
+    @Override
+    public void OnProductyDeleted(String item) {
+        //db.collection("Categories").document(categoryId).collection("Products").document().
+
     }
 
     private void updateCantidadProductos() {
@@ -336,7 +378,7 @@ public class MainActivity extends AppCompatActivity implements AddListBoxDialogF
                     Toast.makeText(MainActivity.this, "Error al eliminar el producto de la lista", Toast.LENGTH_SHORT).show();
                 }
             });
-        }else {
+        } else {
             showDeleteListDialog(s);
         }
     }

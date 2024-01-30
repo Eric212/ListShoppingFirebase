@@ -12,7 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.ericsospedra.listshoppingfirebase.R;
 import com.ericsospedra.listshoppingfirebase.interfaces.IOnClickListener;
-import com.ericsospedra.listshoppingfirebase.interfaces.OnLongClickListener;
+import com.ericsospedra.listshoppingfirebase.interfaces.IOnLongClickListener;
 import com.ericsospedra.listshoppingfirebase.models.ShoppingList;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
@@ -30,9 +30,9 @@ public class ShoppingListAdapter extends FirestoreRecyclerAdapter<ShoppingList, 
      */
 
     private final IOnClickListener listener;
-    private OnLongClickListener longListener;
+    private IOnLongClickListener longListener;
 
-    public ShoppingListAdapter(@NonNull FirestoreRecyclerOptions<ShoppingList> options, IOnClickListener listener, OnLongClickListener longClickListener) {
+    public ShoppingListAdapter(@NonNull FirestoreRecyclerOptions<ShoppingList> options, IOnClickListener listener, IOnLongClickListener longClickListener) {
         super(options);
         this.listener = listener;
         this.longListener = longClickListener;

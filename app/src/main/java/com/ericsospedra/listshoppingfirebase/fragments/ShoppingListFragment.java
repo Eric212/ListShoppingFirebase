@@ -7,18 +7,15 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.ericsospedra.listshoppingfirebase.R;
 import com.ericsospedra.listshoppingfirebase.adapters.ShoppingListAdapter;
 import com.ericsospedra.listshoppingfirebase.interfaces.IOnClickListener;
-import com.ericsospedra.listshoppingfirebase.interfaces.OnLongClickListener;
+import com.ericsospedra.listshoppingfirebase.interfaces.IOnLongClickListener;
 import com.ericsospedra.listshoppingfirebase.models.ShoppingList;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
@@ -28,7 +25,7 @@ public class ShoppingListFragment extends Fragment {
     private FirebaseFirestore firebase;
     private ShoppingListAdapter adapter;
     private IOnClickListener listener;
-    private OnLongClickListener longClickListener;
+    private IOnLongClickListener longClickListener;
 
     public ShoppingListFragment() {
         super(R.layout.shoping_list_fragment);
@@ -69,6 +66,6 @@ public class ShoppingListFragment extends Fragment {
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         listener = (IOnClickListener) context;
-        longClickListener = (OnLongClickListener) context;
+        longClickListener = (IOnLongClickListener) context;
     }
 }

@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.ericsospedra.listshoppingfirebase.R;
 import com.ericsospedra.listshoppingfirebase.interfaces.IOnClickListener;
 import com.ericsospedra.listshoppingfirebase.models.Product;
+import com.ericsospedra.listshoppingfirebase.utils.ResourceChecker;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 
@@ -54,7 +55,11 @@ public class ProductAdapter extends FirestoreRecyclerAdapter<Product, ProductAda
         }
 
         public void onBindProduct(Product p) {
-            ivProduct.setImageResource(itemView.getContext().getResources().getIdentifier(p.getImage(), "drawable", itemView.getContext().getPackageName()));
+            if(ResourceChecker.existeRecursoPorNombre(itemView.getContext(),p.getImage(),"drawable")) {
+                ivProduct.setImageResource(itemView.getContext().getResources().getIdentifier(p.getImage(), "drawable", itemView.getContext().getPackageName()));
+            }else{
+                ivProduct.setImageResource(R.drawable.default_food);
+            }
             tvProduct.setText(p.getName());
         }
 
