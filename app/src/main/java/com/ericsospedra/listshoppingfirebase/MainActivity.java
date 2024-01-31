@@ -13,6 +13,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
@@ -64,6 +65,7 @@ public class MainActivity extends AppCompatActivity implements AddListBoxDialogF
     private FragmentManager manager;
     private String listId;
     private String categoryId;
+    private Toolbar toolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,6 +74,8 @@ public class MainActivity extends AppCompatActivity implements AddListBoxDialogF
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         db = FirebaseFirestore.getInstance();
         manager = getSupportFragmentManager();
+        toolbar = findViewById(R.id.tbMenu);
+        toolbar.setTitle("Shopping List");
 
         if (firebaseUser != null) {
             Toast.makeText(this, "Bienvenido " + firebaseUser.getDisplayName(), Toast.LENGTH_SHORT).show();
@@ -244,6 +248,7 @@ public class MainActivity extends AppCompatActivity implements AddListBoxDialogF
                             listId = s;
                             int f = findViewById(R.id.fcvMain).getId();
                             manager.beginTransaction().setReorderingAllowed(true).addToBackStack(null).replace(f, LinesOfShoppingListFragment.class, null).commit();
+                            toolbar.setTitle(task.getResult().toObject(ShoppingList.class).getName());
                         }
                     }
                 }
@@ -256,6 +261,7 @@ public class MainActivity extends AppCompatActivity implements AddListBoxDialogF
                         if (task.getResult().getData() != null) {
                             categoryId = s;
                             manager.beginTransaction().setReorderingAllowed(true).addToBackStack(null).replace(R.id.fcvMain, ProductFragment.class, null).commit();
+                            toolbar.setTitle(task.getResult().toObject(Category.class).getName());
                         }
                     }
                 }
@@ -274,6 +280,12 @@ public class MainActivity extends AppCompatActivity implements AddListBoxDialogF
                                     Log.d(MainActivity.class.getSimpleName(), "Producto añadido a la lista");
                                     updateCantidadProductos();
                                     manager.beginTransaction().setReorderingAllowed(true).addToBackStack(null).replace(R.id.fcvMain, LinesOfShoppingListFragment.class, null).commit();
+                                    db.collection("ShoppingLists").document(listId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                            toolbar.setTitle(task.getResult().toObject(ShoppingList.class).getName());
+                                        }
+                                    });
                                 }
                             }).addOnFailureListener(new OnFailureListener() {
                                 @Override
