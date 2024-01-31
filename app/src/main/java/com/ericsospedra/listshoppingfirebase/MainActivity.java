@@ -3,7 +3,6 @@ package com.ericsospedra.listshoppingfirebase;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.Layout;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
@@ -144,21 +143,23 @@ public class MainActivity extends AppCompatActivity implements AddListBoxDialogF
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
-                    if (task.getResult().size() == 0) {
-                        db.collection("ShoppingLists").add(list).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                            @Override
-                            public void onSuccess(DocumentReference documentReference) {
-                                Log.d(MainActivity.class.getSimpleName(), "Lista añadida correctamente:" + list.getName());
-                            }
-                        }).addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                Log.d(MainActivity.class.getSimpleName(), "Error al añadir la lista");
-                                Log.e(MainActivity.class.getSimpleName(), e.getMessage());
-                            }
-                        });
-                    } else {
-                        Toast.makeText(MainActivity.this, "Error al crear la lista, ya existe una lista con este nombre", Toast.LENGTH_SHORT).show();
+                    for (QueryDocumentSnapshot document : task.getResult()) {
+                        if (document.toObject(Category.class).getName().equals(list.getName())) {
+                            db.collection("ShoppingLists").add(list).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                                @Override
+                                public void onSuccess(DocumentReference documentReference) {
+                                    Log.d(MainActivity.class.getSimpleName(), "Lista añadida correctamente:" + list.getName());
+                                }
+                            }).addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Log.d(MainActivity.class.getSimpleName(), "Error al añadir la lista");
+                                    Log.e(MainActivity.class.getSimpleName(), e.getMessage());
+                                }
+                            });
+                        } else {
+                            Toast.makeText(MainActivity.this, "Error al crear la lista, ya existe una lista con este nombre", Toast.LENGTH_SHORT).show();
+                        }
                     }
                 }
             }
@@ -172,21 +173,24 @@ public class MainActivity extends AppCompatActivity implements AddListBoxDialogF
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
-                    if (task.getResult().size() == 0) {
-                        db.collection("Categories").add(c).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                            @Override
-                            public void onSuccess(DocumentReference documentReference) {
-                                Log.d(MainActivity.class.getSimpleName(), "Categoria añadida correctamente: " + c.getName());
-                            }
-                        }).addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                Log.d(MainActivity.class.getSimpleName(), "Error al añadir la categoria");
-                                Log.e(MainActivity.class.getSimpleName(), e.getMessage());
-                            }
-                        });
-                    } else {
-                        Toast.makeText(MainActivity.this, "Error al crear la categoria, ya existe una categoria con este nombre", Toast.LENGTH_SHORT).show();
+                    for (QueryDocumentSnapshot document : task.getResult()) {
+                        if (document.toObject(Category.class).getName().equals(item)) {
+                            db.collection("Categories").add(c).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                                @Override
+                                public void onSuccess(DocumentReference documentReference) {
+                                    Log.d(MainActivity.class.getSimpleName(), "Categoria añadida correctamente: " + c.getName());
+                                }
+
+                            }).addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Log.d(MainActivity.class.getSimpleName(), "Error al añadir la categoria");
+                                    Log.e(MainActivity.class.getSimpleName(), e.getMessage());
+                                }
+                            });
+                        } else {
+                            Toast.makeText(MainActivity.this, "Error al crear la categoria, ya existe una categoria con este nombre", Toast.LENGTH_SHORT).show();
+                        }
                     }
                 }
             }
@@ -202,15 +206,26 @@ public class MainActivity extends AppCompatActivity implements AddListBoxDialogF
                 if (task.isSuccessful()) {
                     Category c = task.getResult().toObject(Category.class);
                     p.setImage(c.getImage());
-                    db.collection("Categories").document(categoryId).collection("Products").add(p).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                    db.collection("Categories").document(categoryId).collection("Products").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                         @Override
-                        public void onSuccess(DocumentReference documentReference) {
-                            Log.d(MainActivity.class.getSimpleName(), "Producto añadida correctamente: " + p.getName());
-                        }
-                    }).addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Toast.makeText(MainActivity.this, "Error al añadir el producto", Toast.LENGTH_SHORT).show();
+                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                            if (task.isSuccessful()) {
+                                for (QueryDocumentSnapshot document : task.getResult()) {
+                                    if (!document.toObject(Product.class).getName().equals(item)) {
+                                        db.collection("Categories").document(categoryId).collection("Products").add(p).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                                            @Override
+                                            public void onSuccess(DocumentReference documentReference) {
+                                                Log.d(MainActivity.class.getSimpleName(), "Producto añadida correctamente: " + p.getName());
+                                            }
+                                        }).addOnFailureListener(new OnFailureListener() {
+                                            @Override
+                                            public void onFailure(@NonNull Exception e) {
+                                                Toast.makeText(MainActivity.this, "Error al añadir el producto", Toast.LENGTH_SHORT).show();
+                                            }
+                                        });
+                                    }
+                                }
+                            }
                         }
                     });
                 }
@@ -233,8 +248,7 @@ public class MainActivity extends AppCompatActivity implements AddListBoxDialogF
                     }
                 }
             });
-        }
-        if (manager.findFragmentById(R.id.fcvMain) instanceof CategoryFragment) {
+        } else if (manager.findFragmentById(R.id.fcvMain) instanceof CategoryFragment) {
             db.collection("Categories").document(s).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                 @Override
                 public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -246,15 +260,14 @@ public class MainActivity extends AppCompatActivity implements AddListBoxDialogF
                     }
                 }
             });
-        }
-        if (manager.findFragmentById(R.id.fcvMain) instanceof ProductFragment) {
+        } else if (manager.findFragmentById(R.id.fcvMain) instanceof ProductFragment) {
             db.collection("Categories").document(categoryId).collection("Products").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                 @Override
                 public void onComplete(@NonNull Task<QuerySnapshot> task) {
                     for (QueryDocumentSnapshot document : task.getResult()) {
                         Product p = document.toObject(Product.class);
                         if (p.getName().equals(s)) {
-                            LinesOfShoppingList line = new LinesOfShoppingList(document.getId(), p.getName(), p.getImage());
+                            LinesOfShoppingList line = new LinesOfShoppingList(document.getId(), p.getName(), p.getImage(), false);
                             db.collection("ShoppingLists").document(listId).collection("LinesOfShoppingList").add(line).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                                 @Override
                                 public void onSuccess(DocumentReference documentReference) {
@@ -270,6 +283,20 @@ public class MainActivity extends AppCompatActivity implements AddListBoxDialogF
                             });
                         }
                     }
+                }
+            });
+        } else {
+            String[] values = s.split(" ");
+            boolean checked = Boolean.parseBoolean(values[0]);
+            db.collection("ShoppingLists").document(listId).collection("LinesOfShoppingList").document(values[1]).update("buy",checked).addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void unused) {
+                    Log.d(MainActivity.class.getSimpleName(), "Linea de compra actualizada");
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Log.d(MainActivity.class.getSimpleName(), "Error al actualizar la linea de compra");
                 }
             });
         }
@@ -325,7 +352,26 @@ public class MainActivity extends AppCompatActivity implements AddListBoxDialogF
 
     @Override
     public void OnProductyDeleted(String item) {
-        //db.collection("Categories").document(categoryId).collection("Products").document().
+        db.collection("Categories").document(categoryId).collection("Products").whereEqualTo("name", item).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    for (QueryDocumentSnapshot document : task.getResult()) {
+                        db.collection("Categories").document(categoryId).collection("Products").document(document.getId()).delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+
+                            }
+                        }).addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+
+                            }
+                        });
+                    }
+                }
+            }
+        });
 
     }
 
@@ -343,7 +389,12 @@ public class MainActivity extends AppCompatActivity implements AddListBoxDialogF
                                 db.collection("ShoppingLists").document(listId).update("cantidadProductos", task.getResult().size()).addOnCompleteListener(new OnCompleteListener<Void>() {
                                     @Override
                                     public void onComplete(@NonNull Task<Void> task) {
-
+                                        Log.d(MainActivity.class.getSimpleName(), "Cantidad de produuctos actualizada");
+                                    }
+                                }).addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        Log.d(MainActivity.class.getSimpleName(), "Error al actualizar la cantidad de productos");
                                     }
                                 });
                             }
@@ -370,6 +421,7 @@ public class MainActivity extends AppCompatActivity implements AddListBoxDialogF
             db.collection("ShoppingLists").document(listId).collection("LinesOfShoppingList").document(s).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
                 @Override
                 public void onSuccess(Void unused) {
+                    updateCantidadProductos();
                     Log.d(MainActivity.class.getSimpleName(), "Producto eliminado con exito de la lista de la compra");
                 }
             }).addOnFailureListener(new OnFailureListener() {

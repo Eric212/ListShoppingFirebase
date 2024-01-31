@@ -30,7 +30,6 @@ public class CategoryFragment extends Fragment {
     private CategoryAdapter adapter;
     private IOnClickListener listener;
     private IOnLongClickListener longListener;
-    private Context context;
 
     public CategoryFragment() {
         super(R.layout.category_fragment);

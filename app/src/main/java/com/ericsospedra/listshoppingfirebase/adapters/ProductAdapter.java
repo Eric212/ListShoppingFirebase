@@ -7,10 +7,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.ericsospedra.listshoppingfirebase.R;
 import com.ericsospedra.listshoppingfirebase.interfaces.IOnClickListener;
+import com.ericsospedra.listshoppingfirebase.interfaces.IOnLongClickListener;
 import com.ericsospedra.listshoppingfirebase.models.Product;
 import com.ericsospedra.listshoppingfirebase.utils.ResourceChecker;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
@@ -18,6 +20,7 @@ import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 
 public class ProductAdapter extends FirestoreRecyclerAdapter<Product, ProductAdapter.ProductViewHolder> {
     private final IOnClickListener listener;
+    private final IOnLongClickListener longListener;
 
     /**
      * Create a new RecyclerView adapter that listens to a Firestore Query.  See {@link
@@ -25,9 +28,10 @@ public class ProductAdapter extends FirestoreRecyclerAdapter<Product, ProductAda
      *
      * @param options
      */
-    public ProductAdapter(@NonNull FirestoreRecyclerOptions<Product> options, IOnClickListener listener) {
+    public ProductAdapter(@NonNull FirestoreRecyclerOptions<Product> options, IOnClickListener listener,IOnLongClickListener longListener) {
         super(options);
         this.listener = listener;
+        this.longListener = longListener;
     }
 
 
@@ -43,7 +47,7 @@ public class ProductAdapter extends FirestoreRecyclerAdapter<Product, ProductAda
     }
 
 
-    public class ProductViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    public class ProductViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
         private ImageView ivProduct;
         private TextView tvProduct;
 
@@ -52,6 +56,7 @@ public class ProductAdapter extends FirestoreRecyclerAdapter<Product, ProductAda
             ivProduct = itemView.findViewById(R.id.ivProduct);
             tvProduct = itemView.findViewById(R.id.tvProduct);
             itemView.setOnClickListener(this);
+            itemView.setOnLongClickListener(this);
         }
 
         public void onBindProduct(Product p) {
@@ -66,6 +71,18 @@ public class ProductAdapter extends FirestoreRecyclerAdapter<Product, ProductAda
         @Override
         public void onClick(View v) {
             listener.onClick(getSnapshots().getSnapshot(getBindingAdapterPosition()).toObject(Product.class).getName());
+        }
+
+        @Override
+        public boolean onLongClick(View v) {
+            ConstraintLayout layout = (ConstraintLayout) v;
+            TextView textView = layout.findViewById(R.id.tvProduct);
+            if(longListener != null){
+                longListener.onLongClick(textView.getText().toString());
+                return true;
+            }else {
+                return false;
+            }
         }
     }
 }

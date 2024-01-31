@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.ericsospedra.listshoppingfirebase.R;
 import com.ericsospedra.listshoppingfirebase.adapters.ProductAdapter;
 import com.ericsospedra.listshoppingfirebase.interfaces.IOnClickListener;
+import com.ericsospedra.listshoppingfirebase.interfaces.IOnLongClickListener;
 import com.ericsospedra.listshoppingfirebase.models.Category;
 import com.ericsospedra.listshoppingfirebase.models.Product;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
@@ -28,6 +29,8 @@ import java.util.Objects;
 
 
 public class ProductFragment extends Fragment {
+
+    private IOnLongClickListener longListener;
 
     public interface IOnAttach{
         String getCategoryId();
@@ -71,7 +74,7 @@ public class ProductFragment extends Fragment {
                 return null;
             }
         }).build();
-        adapter = new ProductAdapter(options, listener);
+        adapter = new ProductAdapter(options, listener,longListener);
         rvProducts.setAdapter(adapter);
         rvProducts.setLayoutManager(new LinearLayoutManager(view.getContext(), LinearLayoutManager.VERTICAL, false));
     }
@@ -81,6 +84,7 @@ public class ProductFragment extends Fragment {
         super.onAttach(context);
         IOnAttach iOnAttach = (IOnAttach) context;
         listener = (IOnClickListener) context;
+        longListener = (IOnLongClickListener) context;
         categoryId = iOnAttach.getCategoryId();
     }
 }
