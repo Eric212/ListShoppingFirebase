@@ -277,6 +277,14 @@ public class MainActivity extends AppCompatActivity implements AddListBoxDialogF
                                     db.collection("ShoppingLists").document(listId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                         @Override
                                         public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                            if(task.isSuccessful()){
+                                                toolbar.setTitle(task.getResult().toObject(ShoppingList.class).getName());
+                                            }
+                                        }
+                                    });
+                                    db.collection("ShoppingLists").document(listId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                                             toolbar.setTitle(task.getResult().toObject(ShoppingList.class).getName());
                                         }
                                     });
