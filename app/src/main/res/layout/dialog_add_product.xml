@@ -17,7 +17,6 @@
         android:ems="10"
         android:hint="Insertar nombre del producto"
         android:inputType="text"
-        android:text="@string/name"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

@@ -206,7 +206,7 @@ public class MainActivity extends AppCompatActivity implements AddListBoxDialogF
                 if (task.isSuccessful()) {
                     Category c = task.getResult().toObject(Category.class);
                     p.setImage(c.getImage());
-                    db.collection("Categories").document(categoryId).collection("Products").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    db.collection("Categories").document(categoryId).collection("Products").whereEqualTo("name",p.getName()).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                         @Override
                         public void onComplete(@NonNull Task<QuerySnapshot> task) {
                             if (task.isSuccessful()) {
