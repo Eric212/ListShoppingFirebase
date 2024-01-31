@@ -141,29 +141,27 @@ public class MainActivity extends AppCompatActivity implements AddListBoxDialogF
     //TODO: Implements user filter for duplicate lists check
     @Override
 
-    public void onListAdded(String listName) {
+      public void onListAdded(String listName) {
         ShoppingList list = new ShoppingList(listName, "shopping_list", new Date().getTime(), 0, null);
         db.collection("ShoppingLists").whereEqualTo("name", list.getName()).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
-                    for (QueryDocumentSnapshot document : task.getResult()) {
-                        if (document.toObject(Category.class).getName().equals(list.getName())) {
-                            db.collection("ShoppingLists").add(list).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                                @Override
-                                public void onSuccess(DocumentReference documentReference) {
-                                    Log.d(MainActivity.class.getSimpleName(), "Lista añadida correctamente:" + list.getName());
-                                }
-                            }).addOnFailureListener(new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception e) {
-                                    Log.d(MainActivity.class.getSimpleName(), "Error al añadir la lista");
-                                    Log.e(MainActivity.class.getSimpleName(), e.getMessage());
-                                }
-                            });
-                        } else {
-                            Toast.makeText(MainActivity.this, "Error al crear la lista, ya existe una lista con este nombre", Toast.LENGTH_SHORT).show();
-                        }
+                    if (task.getResult().size()==0) {
+                        db.collection("ShoppingLists").add(list).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                            @Override
+                            public void onSuccess(DocumentReference documentReference) {
+                                Log.d(MainActivity.class.getSimpleName(), "Lista añadida correctamente:" + list.getName());
+                            }
+                        }).addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.d(MainActivity.class.getSimpleName(), "Error al añadir la lista");
+                                Log.e(MainActivity.class.getSimpleName(), e.getMessage());
+                            }
+                        });
+                    } else {
+                        Toast.makeText(MainActivity.this, "Error al crear la lista, ya existe una lista con este nombre", Toast.LENGTH_SHORT).show();
                     }
                 }
             }
